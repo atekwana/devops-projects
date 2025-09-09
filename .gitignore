@@ -1,0 +1,158 @@
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+*.auto.tfvars
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible
+*.retry
+.vault_pass
+hosts.yml
+inventory.yml
+
+# AWS
+.aws/
+*.pem
+*.key
+*.crt
+aws-credentials
+
+# Jenkins
+.jenkins/
+jenkins_home/
+*.hpi
+*.jpi
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+kubeconfig
+.kube/
+
+# Vagrant
+.vagrant/
+*.box
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env
+.venv
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+.node_repl_history
+
+# Java
+*.class
+*.war
+*.ear
+*.jar
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# Secrets and sensitive files
+*.secret
+*.secrets
+*secret*
+*password*
+*credentials*
+.env.local
+.env.production
+config/secrets.yml
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+.cache/
+
+# Build artifacts
+build/
+dist/
+out/
+
+# Monitoring and metrics
+prometheus/
+grafana/data/
+*.rrd
+
+# SSL/TLS certificates
+*.csr
+*.der
+*.p12
+*.p7b
+*.p7c
+*.p7s
+*.pfx
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Local development
+.local/
+local/
+dev/
+development/
+
+# Project specific (based on your vprofile project)
+vprofile-project-ci-awsjenkins/
+**/target/
+**/logs/
