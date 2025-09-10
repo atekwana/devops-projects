@@ -1,0 +1,4 @@
+#bitbucket.org
+Host bitbucket.org
+  PreferredAuthentications publickey
+  IdentityFile ~/.ssh/bitbucket
