@@ -1,7 +1,3 @@
-def COLOR_MAP = [
-    'SUCCESS': 'good',
-    'FAILURE': 'danger',
-]
 /* groovylint-disable CompileStatic, GStringExpressionWithinString */
 pipeline {
     agent any
