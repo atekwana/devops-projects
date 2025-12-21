@@ -136,8 +136,10 @@ pipeline {
         // deploy container stage
         stage('Deploy to Staging ECS') {
             steps {
-                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                    sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
+                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
+                    }
                 }
             }
         }
