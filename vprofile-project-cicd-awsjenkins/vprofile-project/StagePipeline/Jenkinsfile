@@ -24,12 +24,13 @@ pipeline {
         vprofileRegistry = 'https://593572207657.dkr.ecr.us-east-1.amazonaws.com'
         cluster = "vprofile-app-staging"
         service = "vprofile-app-task-service-fk0fp32b"
+        APP_DIR = 'vprofile-project-cicd-awsjenkins/vprofile-project'
     }
 
     stages {
         stage('Build') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     sh 'mvn -s settings.xml -DskipTests install'
                 }
             }
@@ -43,7 +44,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     sh 'mvn -s settings.xml test'
                 }
             }
@@ -51,7 +52,7 @@ pipeline {
 
         stage('Checkstyle Analysis') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     sh 'mvn -s settings.xml checkstyle:checkstyle'
                 }
             }
@@ -62,7 +63,7 @@ pipeline {
                 scannerHome = tool "${SONARSCANNER}"
             }
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     withSonarQubeEnv("${SONARSERVER}") {
                         sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
                         -Dsonar.projectName=vprofile \
@@ -79,7 +80,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     timeout(time: 1, unit: 'HOURS') {
                         // parameter indicates whether to set pipeline to UNSTABLE
                         // true = set pipeline to UNSTABLE false = don't
@@ -91,7 +92,7 @@ pipeline {
         // upload artifact to nexus stage
         stage('UploadArtifacts') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                         nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
@@ -113,7 +114,7 @@ pipeline {
         // build app image stage
         stage('Build App Image') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     script {
                         dockerImage = docker.build(appRegistry + ":$BUILD_NUMBER", './Docker-files/app/multistage/')
                     }
@@ -123,7 +124,7 @@ pipeline {
         // upload app image stage
         stage('Upload App Image') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     script {
                         docker.withRegistry(vprofileRegistry, registryCredential) {
                             dockerImage.push("$BUILD_NUMBER")
@@ -136,7 +137,7 @@ pipeline {
         // deploy container stage
         stage('Deploy to Staging ECS') {
             steps {
-                dir('vprofile-project-cicd-awsjenkins/vprofile-project') {
+                dir("${APP_DIR}") {
                     withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                         sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
                     }
