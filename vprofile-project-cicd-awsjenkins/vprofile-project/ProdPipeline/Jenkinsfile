@@ -15,10 +15,8 @@ pipeline {
     stages {
         stage('Deploy to Staging ECS') {
             steps {
-                dir("${APP_DIR}") {
-                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
-                    }
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                    sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
                 }
             }
         }
