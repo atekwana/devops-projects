@@ -22,8 +22,8 @@ pipeline {
         registryCredential = 'ecr:us-east-1:aws-creds'
         appRegistry = '593572207657.dkr.ecr.us-east-1.amazonaws.com/vprofile-app-image'
         vprofileRegistry = 'https://593572207657.dkr.ecr.us-east-1.amazonaws.com'
-        cluster = "vprofile-app-staging"
-        service = "vprofile-app-task-service-fk0fp32b"
+        cluster = 'vprofile-app-staging'
+        service = 'vprofile-app-task-service-fk0fp32b'
         APP_DIR = 'vprofile-project-cicd-awsjenkins/vprofile-project'
     }
 
