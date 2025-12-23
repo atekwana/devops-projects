@@ -16,13 +16,11 @@ phases:
   pre_build:
     commands:
       - apt-get update
-      - apt-get install -y jq checkstyle
+      - apt-get install -y jq curl unzip
       - wget https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/apache-maven-3.9.12-bin.tar.gz
       - tar xzvf apache-maven-3.9.12-bin.tar.gz
-      - ln -s apache-maven-3.9.12 maven
-      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
-      - unzip ./sonar-scanner-cli-3.3.0.1492-linux.zip
-      - export PATH=$PATH:/sonar-scanner-3.3.0.1492-linux/bin/
+      - export PATH=$PWD/apache-maven-3.9.12/bin:$PATH
+      - mvn -version
   build:
     commands:
       - mvn test
