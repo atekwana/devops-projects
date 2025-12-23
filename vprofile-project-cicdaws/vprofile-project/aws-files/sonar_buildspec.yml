@@ -31,6 +31,6 @@ phases:
       - sleep 15
       - curl -f https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project > result.json || echo '{"projectStatus":{"status":"UNKNOWN"}}' > result.json
       - cat result.json
-      - STATUS=$(jq -r '.projectStatus.status' result.json)
+      - STATUS=$(jq -r '.projectStatus.status // "UNKNOWN"' result.json 2>/dev/null || echo "UNKNOWN")
       - echo "Status is $STATUS"
-      - if [ $(jq -r '.projectStatus.status' result.json) = "ERROR" ]; then exit 1; fi
+      - '[ "$STATUS" = "ERROR" ] && exit 1 || exit 0'
