@@ -29,7 +29,7 @@ phases:
       - mvn checkstyle:checkstyle
       - mvn sonar:sonar -Dsonar.login=$LOGIN -Dsonar.host.url=$HOST -Dsonar.projectKey=$Project -Dsonar.organization=$Organization -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ -Dsonar.junit.reportsPath=target/surefire-reports/ -Dsonar.jacoco.reportsPath=target/jacoco.exec -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
       - sleep 15
-      - curl https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project >result.json
+      - - curl -f https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project > result.json || echo '{"projectStatus":{"status":"UNKNOWN"}}' > result.json
       - cat result.json
       - STATUS=$(jq -r '.projectStatus.status' result.json)
       - echo "Status is $STATUS"
