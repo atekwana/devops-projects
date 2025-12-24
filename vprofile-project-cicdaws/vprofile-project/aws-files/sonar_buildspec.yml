@@ -32,7 +32,7 @@ phases:
       - STATUS=$(jq -r '.projectStatus.status // "UNKNOWN"' result.json 2>/dev/null || echo "UNKNOWN")
       - echo "Status is $STATUS"
       - '[ "$STATUS" = "ERROR" ] && exit 1 || exit 0'
-  artifacts:
-  files:
-    - '**/*'
-  base-directory: 'target'
+artifacts:
+files:
+  - '**/*'
+base-directory: 'target'
