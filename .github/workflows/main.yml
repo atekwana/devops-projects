@@ -7,23 +7,27 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v6
 
-      # running maven command
-      - name: Maven Test
-        working-directory: ./hprofile-project-github-actions/hprofile-main
-        run: mvn test
-
-      - name: Checkstyle
-        working-directory: ./hprofile-project-github-actions/hprofile-main
-        run: mvn checkstyle:checkstyle
-
-      # setup for java 11 to be default (sonar-scanner as pof 5.x)
-      - name: Set Java 11
+      # set java versions
+      - name: Set Java Versions
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin' # distribution
           java-version: |
                         11
                         17
+
+      # running maven command
+      - name: Maven Test
+        working-directory: ./hprofile-project-github-actions/hprofile-main
+        run: |
+            export JAVA_HOME=$JAVA_HOME_11_X64
+            mvn test
+
+      - name: Checkstyle
+        working-directory: ./hprofile-project-github-actions/hprofile-main
+        run: |
+            export JAVA_HOME=$JAVA_HOME_11_X64
+            mvn checkstyle:checkstyle
 
       # Setup sonar-scanner
       - name: Setup SonarQube
@@ -32,13 +36,15 @@ jobs:
       # Run sonar-scanner
       - name: SonarQube Scan
         working-directory: ./hprofile-project-github-actions/hprofile-main
-        run: sonar-scanner
-           -Dsonar.host.url=${{ secrets.SONAR_URL }}
-           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-           -Dsonar.sources=src/
-           -Dsonar.junit.reportsPath=target/surefire-reports/
-           -Dsonar.jacoco.reportsPath=target/jacoco.exec
-           -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml
-           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account
+        run: |
+            export JAVA_HOME=$JAVA_HOME_17_X64
+            sonar-scanner \
+            -Dsonar.host.url=${{ secrets.SONAR_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.sources=src/ \
+            -Dsonar.junit.reportsPath=target/surefire-reports/ \
+            -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+            -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml \
+            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account \
