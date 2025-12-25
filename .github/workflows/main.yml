@@ -21,7 +21,9 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin' # distribution
-          java-version: '11'
+          java-version: |
+                        11
+                        17
 
       # Setup sonar-scanner
       - name: Setup SonarQube
