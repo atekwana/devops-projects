@@ -9,9 +9,11 @@ jobs:
 
       # running maven command
       - name: Maven Test
+        working-directory: ./hprofile-project-github-actions/hprofile-main
         run: mvn test
 
       - name: Checkstyle
+        working-directory: ./hprofile-project-github-actions/hprofile-main
         run: mvn checkstyle:checkstyle
 
       # setup for java 11 to be default (sonar-scanner as pof 5.x)
@@ -27,6 +29,7 @@ jobs:
 
       # Run sonar-scanner
       - name: SonarQube Scan
+        working-directory: ./hprofile-project-github-actions/hprofile-main
         run: sonar-scanner
            -Dsonar.host.url=${{ secrets.SONAR_URL }}
            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
