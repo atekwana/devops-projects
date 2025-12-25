@@ -17,7 +17,7 @@ phases:
       - sed -i "s/jdbc.username=admin/jdbc.username=$dbuser/" src/main/resources/application.properties
       - sed -i "s|db01:3306|$dbhost:3306|g" src/main/resources/application.properties
       - apt-get update
-      - apt-get install -y jq 
+      - apt-get install -y jq
       - wget https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/apache-maven-3.9.12-bin.tar.gz
       - tar xzvf apache-maven-3.9.12-bin.tar.gz
       - ln -s apache-maven-3.9.12 maven

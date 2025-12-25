@@ -1,22 +1,33 @@
-version: 0.2
-#
-#env:
-#  variables:
-#    PROJECT: AspNetMvcSampleApp
-#   DOTNET_FRAMEWORK: 4.6.1
 phases:
-  build:
+  install:
     commands:
-      - Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+      - Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
       - choco install corretto11jdk -y
       - choco install maven -y
       - choco install googlechrome --ignore-checksums -y
-      - choco install git -y
-      - mkdir C:\output
-      - Start-Sleep -s 360
-      - cd src\seleniumscripts\
-      - mvn clean test -Dsurefire  -Durl=http://vprofile-app-prodenv.us-east-1.elasticbeanstalk.com/login -Dusr=admin_vp -Dpass=admin_vp -DsShotPath=C:\\output\\ScrnSht_
-      - cp C:\output\* .
+      - $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+  pre_build:
+    commands:
+      - mkdir C:\output -Force
+      - mkdir C:\screenshots -Force
+      - echo "=== Current Directory ==="
+      - pwd
+      - echo "=== Listing current directory ==="
+      - dir
+      - echo "=== Checking if src exists ==="
+      - Test-Path src
+      - echo "=== Listing all directories recursively ==="
+      - Get-ChildItem -Recurse -Directory | Select-Object FullName
+      - echo "=== Java Version ==="
+      - java -version
+      - echo "=== Maven Version ==="
+      - mvn -version
+  build:
+    commands:
+      - echo "SELINIUM SCRIPTS:"
+      - if (Test-Path "src\seleniumscripts") { cd src\seleniumscripts } elseif (Test-Path "seleniumscripts") { cd seleniumscripts } else { echo "ERROR - Cannot find seleniumscripts directory"; exit 1 }
+      - mvn clean test -Durl=http://vprofile-app-prod-env.us-east-1.elasticbeanstalk.com/login -Dusr=admin_vp -Dpass=admin_vp -DsShotPath=C:\screenshots\
 artifacts:
   files:
     - '**/*'
