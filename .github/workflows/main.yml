@@ -1,9 +1,0 @@
-name: Hprofile Actions
-on: workflow_dispatch
-jobs:
-  Testing:
-    # ubuntu image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Testing Workflow
-        run: "Workflow works!"
