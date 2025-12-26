@@ -19,7 +19,7 @@ jobs:
           java-version: |
             11
             17
-            
+
       # explicitly switch to Java 11
       - name: Maven Test
         run: |
@@ -41,12 +41,12 @@ jobs:
         run: |
           export JAVA_HOME=$JAVA_HOME_17_X64
           sonar-scanner \
-           -Dsonar.host.url=${{ secrets.SONAR_URL }} \
-           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
-           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-           -Dsonar.sources=src/ \
-           -Dsonar.junit.reportsPath=target/surefire-reports/ \
-           -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-           -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml \
-           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account
+            -Dsonar.host.url=${{ secrets.SONAR_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.sources=src/ \
+            -Dsonar.junit.reportsPath=target/surefire-reports/ \
+            -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+            -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml \
+            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account
