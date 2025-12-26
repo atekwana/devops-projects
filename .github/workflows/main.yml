@@ -4,6 +4,7 @@ jobs:
   Testing:
     runs-on: ubuntu-latest
     defaults:
+      # using hprofile specific directory
       run:
         working-directory: ./hprofile-project-github-actions/hprofile-main
     steps:
@@ -18,24 +19,24 @@ jobs:
           java-version: |
             11
             17
-
-      # Maven commands will use Java 17 (the last one in the list)
-      # So we need to explicitly switch to Java 11
+            
+      # explicitly switch to Java 11
       - name: Maven Test
         run: |
           export JAVA_HOME=$JAVA_HOME_11_X64
           mvn test
 
+      # checkstyle using java 11
       - name: Checkstyle
         run: |
           export JAVA_HOME=$JAVA_HOME_11_X64
           mvn checkstyle:checkstyle
 
-      # Setup sonar-scanner
+      # setup sonar-scanner
       - name: Setup SonarQube
         uses: warchant/setup-sonar-scanner@v8
 
-      # SonarQube Scan with Java 17
+      # sonarQube Scan using java 17
       - name: SonarQube Scan
         run: |
           export JAVA_HOME=$JAVA_HOME_17_X64
