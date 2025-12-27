@@ -89,9 +89,9 @@ jobs:
       # search and replace database information
       - name: Update Application.properties File
         run: |
-          sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' hprofile-main/src/main/resources/application.properties
-          sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' hprofile-main/src/main/resources/application.properties
-          sed -i 's|db01|${{ secrets.RDS_ENDPOINT }}|g' hprofile-main/src/main/resources/application.properties
+          sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' hprofile-project-github-actions/hprofile-main/src/main/resources/application.properties
+          sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' hprofile-project-github-actions/hprofile-main/src/main/resources/application.properties
+          sed -i 's|db01|${{ secrets.RDS_ENDPOINT }}|g' hprofile-project-github-actions/hprofile-main/src/main/resources/application.properties
 
       # building docker images
       - name: upload image to ECR
