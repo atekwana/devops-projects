@@ -74,8 +74,18 @@ jobs:
       # --- debug step: checking if the properties file exist ---
       - name: Verify File Exists
         run: |
-          ls -la hprofile-main/src/main/resources/application.properties
-          cat hprofile-main/src/main/resources/application.properties
+          - name: Debug - Show full directory structure
+            echo "=== Current directory ==="
+            pwd
+            echo ""
+            echo "=== Root contents ==="
+            ls -la
+            echo ""
+            echo "=== Find all .properties files ==="
+            find . -name "*.properties" -type f
+            echo ""
+            echo "=== Full directory tree ==="
+            find . -type d | head -20
 
       # search and replace database information
       - name: Update Application.properties File
