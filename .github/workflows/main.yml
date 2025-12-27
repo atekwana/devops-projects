@@ -1,4 +1,5 @@
 name: Hprofile Actions
+# on branch
 on: workflow_dispatch
 # provide region in workflow or in secrets
 env:
@@ -74,6 +75,7 @@ jobs:
       # search and replace database information
       - name: Update Application.properties File
         run: |
+          export JAVA_HOME=$JAVA_HOME_11_X64
           sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' hprofile-project-github-actions/hprofile-main/src/main/resources/application.properties
           sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' hprofile-project-github-actions/hprofile-main/src/main/resources/application.properties
           sed -i 's|db01|${{ secrets.RDS_ENDPOINT }}|g' hprofile-project-github-actions/hprofile-main/src/main/resources/application.properties
