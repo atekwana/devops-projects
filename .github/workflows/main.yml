@@ -1,5 +1,8 @@
 name: Hprofile Actions
 on: workflow_dispatch
+# provide region in workflow or in secrets
+env:
+  AWS_REGION: us-east-1
 jobs:
   Testing:
     runs-on: ubuntu-latest
@@ -60,3 +63,31 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
+
+  # building and publishing docker image
+  BUILD_AND_PUBLISH:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v6
+
+      # search and replace database information
+      - name: Update Application.properties File
+        run: |
+          sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' src/main/resources/application.properties
+          sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' src/main/resources/application.properties
+          sed -i 's|jdbc:mysql://db01|jdbc:mysql://${{ secrets.RDS_ENDPOINT }}|' src/main/resources/application.properties
+
+      # building docker images
+      - name: upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          registry: ${{ secrets.REGISTRY }}
+          repo: actions-app
+          region: ${{ env.AWS_REGION }}
+          tags: latest,${{ github.run_number }}
+          daemon_off: false
+          dockerfile: ./Dockerfile
+          context: ./
