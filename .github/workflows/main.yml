@@ -1,26 +1,27 @@
 name: Hprofile Actions
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
+
 jobs:
   Testing:
     runs-on: ubuntu-latest
     defaults:
-      # using hprofile specific directory
       run:
         working-directory: ./hprofile-project-github-actions/hprofile-main
+
     steps:
       - name: Code checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for better SonarCloud analysis
+          fetch-depth: 0
 
-      # Setup Java 11 for Maven
       - name: Setup Java 11
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '11'
 
-      # Cache Maven packages
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -28,7 +29,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Cache SonarCloud packages
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
@@ -36,20 +36,14 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Maven Test
       - name: Maven Test
-        run: mvn test
+        run: mvn -B verify
 
-      # Checkstyle
-      - name: Checkstyle
-        run: mvn checkstyle:checkstyle
-
-      # Build and analyze with SonarCloud using Maven plugin
-      - name: Build and analyze with SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
-            -Dsonar.host.url=${{ secrets.SONAR_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
