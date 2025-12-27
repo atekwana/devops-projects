@@ -61,6 +61,7 @@ jobs:
         id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
         with:
+          scanMetadataReportFile: ./hprofile-project-github-actions/hprofile-main/.scannerwork/report-task.txt
           pollingTimeoutSec: 600
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
