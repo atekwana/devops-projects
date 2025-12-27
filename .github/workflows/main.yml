@@ -42,6 +42,7 @@ jobs:
 
       # sonarQube Scan using java 17
       - name: SonarQube Scan
+        working-directory: ./hprofile-project-github-actions/hprofile-main
         run: |
           export JAVA_HOME=$JAVA_HOME_17_X64
           sonar-scanner \
