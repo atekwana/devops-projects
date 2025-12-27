@@ -71,12 +71,18 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v6
 
+      # --- debug step: checking if the properties file exist ---
+      - name: Verify File Exists
+        run: |
+          ls -la hprofile-main/src/main/resources/application.properties
+          cat hprofile-main/src/main/resources/application.properties
+
       # search and replace database information
       - name: Update Application.properties File
         run: |
-          sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' src/main/resources/application.properties
-          sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' src/main/resources/application.properties
-          sed -i 's|db01|${{ secrets.RDS_ENDPOINT }}|g' src/main/resources/application.properties
+          sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' hprofile-main/src/main/resources/application.properties
+          sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' hprofile-main/src/main/resources/application.properties
+          sed -i 's|db01|${{ secrets.RDS_ENDPOINT }}|g' hprofile-main/src/main/resources/application.properties
 
       # building docker images
       - name: upload image to ECR
