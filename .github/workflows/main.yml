@@ -1,39 +1,93 @@
 name: Hprofile Actions
 on: workflow_dispatch
+# provide region in workflow or in secrets
+env:
+  AWS_REGION: us-east-1
 jobs:
   Testing:
     runs-on: ubuntu-latest
+    defaults:
+      # using hprofile specific directory
+      run:
+        working-directory: ./hprofile-project-github-actions/hprofile-main
     steps:
       - name: Code checkout
         uses: actions/checkout@v6
 
-      # running maven command
-      - name: Maven Test
-        run: mvn test
-
-      - name: Checkstyle
-        run: mvn checkstyle:checkstyle
-
-      # setup for java 11 to be default (sonar-scanner as pof 5.x)
-      - name: Set Java 11
+      # Setup multiple Java versions (11 and 17)
+      - name: Setup Java versions
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin' # distribution
-          java-version: '11'
+          distribution: 'temurin'
+          java-version: |
+            11
+            17
 
-      # Setup sonar-scanner
+      # explicitly switch to Java 11
+      - name: Maven Test
+        run: |
+          export JAVA_HOME=$JAVA_HOME_11_X64
+          mvn test
+
+      # checkstyle using java 11
+      - name: Checkstyle
+        run: |
+          export JAVA_HOME=$JAVA_HOME_11_X64
+          mvn checkstyle:checkstyle
+
+      # setup sonar-scanner
       - name: Setup SonarQube
         uses: warchant/setup-sonar-scanner@v8
 
-      # Run sonar-scanner
+      # sonarQube Scan using java 17
       - name: SonarQube Scan
-        run: sonar-scanner
-           -Dsonar.host.url=${{ secrets.SONAR_URL }}
-           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-           -Dsonar.sources=src/
-           -Dsonar.junit.reportsPath=target/surefire-reports/
-           -Dsonar.jacoco.reportsPath=target/jacoco.exec
-           -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml
-           -Dsonar.java.binaries=target/test-classes/com/visualpathit/account
+        run: |
+          export JAVA_HOME=$JAVA_HOME_17_X64
+          sonar-scanner \
+            -Dsonar.host.url=${{ secrets.SONAR_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.sources=src/ \
+            -Dsonar.junit.reportsPath=target/surefire-reports/ \
+            -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+            -Dsonar.java.checkstyle.reportsPath=target/checkstyle-result.xml \
+            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account
+
+      # Check the Quality Gate status.
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
+
+  # building and publishing docker image
+  BUILD_AND_PUBLISH:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v6
+
+      # search and replace database information
+      - name: Update Application.properties File
+        run: |
+          sed -i 's|^jdbc.username=.*|jdbc.username=${{ secrets.RDS_USER }}|' src/main/resources/application.properties
+          sed -i 's|^jdbc.password=.*|jdbc.password=${{ secrets.RDS_PASS }}|' src/main/resources/application.properties
+          sed -i 's|jdbc:mysql://db01|jdbc:mysql://${{ secrets.RDS_ENDPOINT }}|' src/main/resources/application.properties
+
+      # building docker images
+      - name: upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          registry: ${{ secrets.REGISTRY }}
+          repo: actions-app
+          region: ${{ env.AWS_REGION }}
+          tags: latest,${{ github.run_number }}
+          daemon_off: false
+          dockerfile: ./Dockerfile
+          context: ./
