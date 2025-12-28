@@ -7,7 +7,7 @@ env:
   ECR_REPOSITORY: actions-app
   ECS_SERVICE: vprofile-app-act-tdef-service
   ECS_CLUSTER: vprofile-app-act
-  ECS_TASK_DEFINITION: aws-files/taskdeffile.json
+  ECS_TASK_DEFINITION: ./hprofile-project-github-actions/hprofile-main/aws-files/taskdeffile.json
   CONTAINER_NAME: vprofile-app
 jobs:
   Testing:
