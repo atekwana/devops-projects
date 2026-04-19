@@ -56,8 +56,8 @@ sudo systemctl enable --now kubelet
 sudo ufw allow 6443/tcp
 
 
-sleep 180
-echo "Waiting for 180 Seconds...."
+sleep 240
+echo "Waiting for 240 Seconds...."
 echo "Lets initialize."
 
 IPADDR=192.168.33.2
