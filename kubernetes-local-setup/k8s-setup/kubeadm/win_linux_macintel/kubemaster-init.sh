@@ -69,7 +69,7 @@ kubeadm init --control-plane-endpoint=$IPADDR    --pod-network-cidr=$POD_CIDR --
 
 cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
 sleep 2
-tail -2 /tmp/initout.log > /vagrant/cltjoincommand.sh
+kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
 sleep 2
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
