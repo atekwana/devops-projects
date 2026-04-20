@@ -68,8 +68,14 @@ kubeadm init --control-plane-endpoint=$IPADDR    --pod-network-cidr=$POD_CIDR --
 #sleep 10
 
 cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
-sleep 2
+
+# setup kubeconfig for vagrant user
+mkdir -p /home/vagrant/.kube
+sudo cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+sudo chown vagrant:vagrant /home/vagrant/.kube/config
+
+sleep 60
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
-sleep 2
+sleep 60
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
