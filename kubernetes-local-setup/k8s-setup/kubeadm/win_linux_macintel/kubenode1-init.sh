@@ -56,5 +56,8 @@ sudo systemctl enable --now kubelet
 sudo ufw allow 6443/tcp
 
 #Join node to the cluster
-sleep 120
+until curl -sk https://192.168.33.2:6443/healthz &>/dev/null; do
+    echo "Waiting for kubemaster..."
+    sleep 10
+done
 /bin/bash /vagrant/cltjoincommand.sh
