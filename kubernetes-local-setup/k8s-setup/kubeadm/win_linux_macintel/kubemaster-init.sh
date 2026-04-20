@@ -69,10 +69,6 @@ kubeadm init --control-plane-endpoint=$IPADDR \
     --node-name $NODENAME \
     --ignore-preflight-errors Swap &>> /tmp/initout.log
 
-#kubeadm init --pod-network-cidr 10.244.0.0/16  --apiserver-advertise-address=192.168.33.2 > /tmp/kubeinitout.log
-kubeadm init --control-plane-endpoint=$IPADDR    --pod-network-cidr=$POD_CIDR --node-name $NODENAME --ignore-preflight-errors  Swap &>> /tmp/initout.log
-#sleep 10
-
 cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
 
 # setup kubeconfig for vagrant user
