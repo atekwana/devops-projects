@@ -56,5 +56,5 @@ sudo systemctl enable --now kubelet
 sudo ufw allow 6443/tcp
 
 #Join node to the cluster
-sleep 60
+sleep 120
 /bin/bash /vagrant/cltjoincommand.sh

@@ -74,8 +74,8 @@ mkdir -p /home/vagrant/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 sudo chown vagrant:vagrant /home/vagrant/.kube/config
 
-sleep 60
+sleep 120
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
-sleep 60
+sleep 120
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
