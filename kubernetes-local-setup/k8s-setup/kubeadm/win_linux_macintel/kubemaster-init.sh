@@ -52,7 +52,6 @@ sudo apt-mark hold kubelet kubeadm kubectl
 sudo systemctl enable --now kubelet
 sudo ufw allow 6443/tcp
 
-
 sleep 240
 echo "Waiting for 240 Seconds...."
 echo "Lets initialize."
@@ -84,9 +83,9 @@ sudo chown vagrant:vagrant /home/vagrant/.kube/config
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
 # Wait for API server to be ready before applying Calico
-until kubectl get nodes &>/dev/null; do
+until KUBECONFIG=/etc/kubernetes/admin.conf kubectl get nodes &>/dev/null; do
     echo "Waiting for API server..."
     sleep 10
 done
 
-kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
+KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
