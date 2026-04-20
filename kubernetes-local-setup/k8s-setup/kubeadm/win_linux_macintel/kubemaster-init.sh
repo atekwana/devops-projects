@@ -26,9 +26,6 @@ lsmod | grep overlay
 
 #sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
-
-
-
 #Installing Containerd#
 sudo apt update
 sudo apt install -y containerd
@@ -63,6 +60,16 @@ echo "Lets initialize."
 IPADDR=192.168.33.2
 POD_CIDR=10.244.0.0/16
 NODENAME=kubemaster
+
+# This flag controls the address the API server advertises to other cluster members, 
+# and is also the address used to construct the kubeadm join line — so both the cert and 
+# the join command will consistently reference 192.168.33.2. Kubernetes
+kubeadm init --control-plane-endpoint=$IPADDR \
+    --apiserver-advertise-address=$IPADDR \
+    --pod-network-cidr=$POD_CIDR \
+    --node-name $NODENAME \
+    --ignore-preflight-errors Swap &>> /tmp/initout.log
+
 #kubeadm init --pod-network-cidr 10.244.0.0/16  --apiserver-advertise-address=192.168.33.2 > /tmp/kubeinitout.log
 kubeadm init --control-plane-endpoint=$IPADDR    --pod-network-cidr=$POD_CIDR --node-name $NODENAME --ignore-preflight-errors  Swap &>> /tmp/initout.log
 #sleep 10
