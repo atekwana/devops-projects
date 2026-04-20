@@ -81,8 +81,12 @@ mkdir -p /home/vagrant/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 sudo chown vagrant:vagrant /home/vagrant/.kube/config
 
-sleep 120
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
-sleep 120
+# Wait for API server to be ready before applying Calico
+until kubectl get nodes &>/dev/null; do
+    echo "Waiting for API server..."
+    sleep 10
+done
+
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
