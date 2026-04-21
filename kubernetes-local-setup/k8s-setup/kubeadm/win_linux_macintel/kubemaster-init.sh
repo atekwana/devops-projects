@@ -72,10 +72,9 @@ kubeadm init --control-plane-endpoint=$IPADDR \
 cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
 
 # setup kubeconfig for vagrant user
-mkdir -p /home/vagrant/.kube
-sudo cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
-sudo chown vagrant:vagrant /home/vagrant/.kube/config
+sudo /bin/bash /vagrant/set-kubeconfig.sh
 
+# join nodes together
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
 # Wait for API server to be ready before applying Calico
