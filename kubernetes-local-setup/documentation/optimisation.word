@@ -1,0 +1,4 @@
+part 3 (spent 1-2 hour debugging)
+1.) Removed the unnecessary sleep 240 and redundant kubeconfig flags, replacing them with a proper readiness check.
+2.) Centralized and fixed kubeconfig setup via /vagrant/set-kubeconfig.sh with a consistent KUBECONFIG export.
+3.) Standardized kubectl usage and ordering so commands run only after the API server is reachable and properly configured.
