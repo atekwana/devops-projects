@@ -26,16 +26,16 @@ lsmod | grep overlay
 
 #sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
-#Installing Containerd#
+# systemd is the init system on Ubuntu 22.04. Using cgroupfs alongside systemd
+# creates two cgroup managers, causing instability under resource pressure.
+# SystemdCgroup = true ensures containerd and kubelet use the same cgroup driver.
+# Ref: kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo apt update
 sudo apt install -y containerd
 sudo mkdir -p /etc/containerd
-
 sudo containerd config default | sudo tee /etc/containerd/config.toml
-
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
 sudo systemctl restart containerd
-
-
 
 
 #Installing Kubeadm, Kubelet & Kubectl#
