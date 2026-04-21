@@ -29,7 +29,7 @@ lsmod | grep overlay
 # systemd is the init system on Ubuntu 22.04. Using cgroupfs alongside systemd
 # creates two cgroup managers, causing instability under resource pressure.
 # SystemdCgroup = true ensures containerd and kubelet use the same cgroup driver.
-# Ref: kubernetes.io/docs/setup/production-environment/container-runtimes/
+# Ref: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo apt update
 sudo apt install -y containerd
 sudo mkdir -p /etc/containerd
@@ -74,13 +74,21 @@ cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
 # setup kubeconfig for vagrant user
 sudo /bin/bash /vagrant/set-kubeconfig.sh
 
-# join nodes together
-kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
-
 # Wait for API server to be ready before applying Calico
-until KUBECONFIG=/etc/kubernetes/admin.conf kubectl get nodes &>/dev/null; do
+until KUBECONFIG=/etc/kubernetes/admin.conf kubectl get --raw='/healthz' &>/dev/null; do
     echo "Waiting for API server..."
     sleep 10
 done
 
+# NOTE: Only run kubeadm/kubectl operations AFTER API server is reachable
+# (confirmed via kubectl get nodes loop). Otherwise commands may fail.
+# Reference: kubeadm init docs — post-init operations require API server to be reachable
+# https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/
+# join nodes together
+kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
+
+# install CNI (Calico)
 KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
+
+
+
