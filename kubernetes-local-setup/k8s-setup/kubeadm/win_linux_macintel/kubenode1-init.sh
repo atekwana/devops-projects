@@ -40,8 +40,6 @@ sudo containerd config default | sudo tee /etc/containerd/config.toml
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
 sudo systemctl restart containerd
 
-
-
 #Installing Kubeadm, Kubelet & Kubectl#
 KUBEVERSION=v1.30
 sudo apt-get update
@@ -56,7 +54,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 sudo systemctl enable --now kubelet
 sudo ufw allow 6443/tcp
 
-#Join node to the cluster
+#Join node to the cluster after node is healthy
 until curl -sk https://192.168.33.2:6443/healthz &>/dev/null; do
     echo "Waiting for kubemaster..."
     sleep 10
