@@ -64,10 +64,6 @@ sudo apt-mark hold kubelet kubeadm kubectl
 sudo systemctl enable --now kubelet
 sudo ufw allow 6443/tcp
 
-sleep 240
-echo "Waiting for 240 Seconds...."
-echo "Lets initialize."
-
 IPADDR=192.168.33.2
 POD_CIDR=10.244.0.0/16
 NODENAME=kubemaster
@@ -95,6 +91,9 @@ done
 
 # setup kubeconfig
 sudo /bin/bash /vagrant/set-kubeconfig.sh
+
+# ensure kubectl always uses correct cluster context
+export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # wait for Kubernetes API + cluster readiness (node registration)
 until kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes &>/dev/null; do
