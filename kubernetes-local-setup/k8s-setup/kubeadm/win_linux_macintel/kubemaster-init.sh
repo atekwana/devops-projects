@@ -1,10 +1,22 @@
 #!/bin/bash
 ###KUBEMASTER###
 
-#Disable Swap
+# disable swap (required by Kubernetes kubelet)
+# swap must be OFF because kubelet requires predictable memory management and does not support swap
+# this disables swap immediately and removes it from fstab so it stays disabled after reboot
+# ref: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo swapoff -a && sudo sed -i '/swap/d' /etc/fstab
 
-#System Settings
+
+# system Settings (required for Kubernetes networking)
+# enables kernel modules and sysctl settings required for container networking:
+# - overlay: supports OverlayFS used by container runtimes (filesystem layering for containers)
+# - br_netfilter: allows bridged IPv4/IPv6 traffic to be processed by iptables (required for Kubernetes networking)
+# - ip_forward: enables packet forwarding between network interfaces (required for pod-to-pod networking)
+
+# ref (kernel modules + Kubernetes networking requirements):
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/
+# https://kubernetes.io/docs/concepts/cluster-administration/networking/
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
@@ -64,21 +76,32 @@ NODENAME=kubemaster
 # and is also the address used to construct the kubeadm join line — so both the cert and 
 # the join command will consistently reference 192.168.33.2. Kubernetes
 kubeadm init --control-plane-endpoint=$IPADDR \
-    --apiserver-advertise-address=$IPADDR \
-    --pod-network-cidr=$POD_CIDR \
-    --node-name $NODENAME \
-    --ignore-preflight-errors Swap &>> /tmp/initout.log
+  --apiserver-advertise-address=$IPADDR \
+  --pod-network-cidr=$POD_CIDR \
+  --node-name $NODENAME \
+  --ignore-preflight-errors Swap &>> /tmp/initout.log
 
-cat /tmp/initout.log | grep -A2 mkdir | /bin/bash
+# fail fast check
+if [ $? -ne 0 ]; then
+  echo "kubeadm init failed"
+  exit 1
+fi
 
-# setup kubeconfig for vagrant user
+# wait for admin.conf
+while [ ! -f /etc/kubernetes/admin.conf ]; do
+  echo "waiting for admin.conf..."
+  sleep 2
+done
+
+# setup kubeconfig
 sudo /bin/bash /vagrant/set-kubeconfig.sh
 
-# Wait for API server to be ready before applying Calico
-until KUBECONFIG=/etc/kubernetes/admin.conf kubectl get --raw='/healthz' &>/dev/null; do
-    echo "Waiting for API server..."
-    sleep 10
+# wait for Kubernetes API + cluster readiness (node registration)
+until kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes &>/dev/null; do
+  echo "waiting for Kubernetes API server..."
+  sleep 10
 done
+
 
 # NOTE: Only run kubeadm/kubectl operations AFTER API server is reachable
 # (confirmed via kubectl get nodes loop). Otherwise commands may fail.
@@ -89,6 +112,3 @@ kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
 # install CNI (Calico)
 KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
-
-
-
