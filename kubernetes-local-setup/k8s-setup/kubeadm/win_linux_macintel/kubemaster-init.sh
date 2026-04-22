@@ -1,20 +1,20 @@
 #!/bin/bash
 ###KUBEMASTER###
 
-# NOTE: disable swap (required by Kubernetes kubelet)
-# swap must be OFF because kubelet requires predictable memory management and does not support swap
-# this disables swap immediately and removes it from fstab so it stays disabled after reboot
-# ref: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
+# NOTE: Disable swap (required by Kubernetes kubelet)
+# Swap must be OFF because kubelet requires predictable memory management and does not support swap
+# This disables swap immediately and removes it from fstab so it stays disabled after reboot
+# Reference: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo swapoff -a && sudo sed -i '/swap/d' /etc/fstab
 
 
-# NOTE: system Settings (required for Kubernetes networking)
-# enables kernel modules and sysctl settings required for container networking:
+# NOTE: System Settings (required for Kubernetes networking)
+# Enables kernel modules and sysctl settings required for container networking:
 # - overlay: supports OverlayFS used by container runtimes (filesystem layering for containers)
 # - br_netfilter: allows bridged IPv4/IPv6 traffic to be processed by iptables (required for Kubernetes networking)
 # - ip_forward: enables packet forwarding between network interfaces (required for pod-to-pod networking)
 
-# NOTE: ref (kernel modules + Kubernetes networking requirements):
+# NOTE: Reference(s) (kernel modules + Kubernetes networking requirements):
 # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 # https://kubernetes.io/docs/concepts/cluster-administration/networking/
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
@@ -38,10 +38,10 @@ lsmod | grep overlay
 
 #sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
-# NOTE:systemd is the init system on Ubuntu 22.04. Using cgroupfs alongside systemd
-# creates two cgroup managers, causing instability under resource pressure.
+# NOTE:Systemd is the init system on Ubuntu 22.04. Using cgroupfs alongside systemd
+# Sreates two cgroup managers, causing instability under resource pressure.
 # SystemdCgroup = true ensures containerd and kubelet use the same cgroup driver.
-# Ref: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
+# Reference: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo apt update
 sudo apt install -y containerd
 sudo mkdir -p /etc/containerd
@@ -103,9 +103,10 @@ done
 
 # NOTE: Only run kubeadm/kubectl operations AFTER API server is reachable
 # (confirmed via kubectl get nodes loop). Otherwise commands may fail.
+# Join nodes together
 # Reference: kubeadm init docs — post-init operations require API server to be reachable
 # https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/
-# join nodes together
+# 
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
 
 # install CNI (Calico)
