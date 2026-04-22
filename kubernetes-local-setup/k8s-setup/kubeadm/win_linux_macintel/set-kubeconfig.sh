@@ -12,6 +12,7 @@ mkdir -p "$HOME_DIR/.kube"
 if [ -f "$KUBE_CONFIG_SRC" ]; then
   cp -f "$KUBE_CONFIG_SRC" "$KUBE_CONFIG_DST"
   chown $USER:$USER "$HOME_DIR/.kube"
+  chmod 644 "$KUBE_CONFIG_DST"
   echo "kubeconfig installed successfully"
 else
   echo "ERROR: $KUBE_CONFIG_SRC not found — kubeadm init may have failed"

@@ -1,3 +1,36 @@
+part 1&2
+1. cgroup Driver Mismatch (SystemdCgroup)
+This is a real-world production gotcha. Being able to explain why two cgroup managers cause instability, what SystemdCgroup = true does, and citing the Kubernetes docs shows deep understanding. Most people just copy-paste this without knowing why.
+
+2. API Server Advertise Address
+Explaining why --apiserver-advertise-address matters in a multi-interface environment (NAT vs private network), how it affects TLS certificate generation, and how the join command is constructed from it — this shows you understand Kubernetes networking fundamentals.
+
+3. Idempotent Provisioning
+The if [ ! -f /etc/kubernetes/admin.conf ] check shows you think about infrastructure as code properly — scripts should be safe to run multiple times without breaking things. This is a DevOps mindset question interviewers love.
+
+4. Debugging etcd and API Server Crashes
+Walking through crictl ps -a, reading container logs, identifying etcd being killed, tracing it to resource starvation and cgroup misconfiguration — this shows a systematic debugging approach.
+
+5. Windows CRLF Line Endings
+Simple but common in real teams. Knowing why it breaks Linux scripts and how to fix it with sed shows cross-platform awareness.
+
+The cgroup driver and API server advertise address topics are the strongest — they show you understand Kubernetes internals, not just how to follow a tutorial.
+
+6. Calico CNI Installation Timing
+Understanding that the API server needs to be fully ready before applying CNI manifests, and replacing a brittle sleep with a proper readiness loop shows you understand Kubernetes bootstrap order and how to write reliable automation.
+
+7. kubeconfig Management
+Understanding why admin.conf exists, who needs access to it, setting it up for multiple users (vagrant, root, current user), and why -i vs -f matters in automated scripts. Also understanding KUBECONFIG environment variable and when to use it explicitly.
+
+8. Container Runtime Troubleshooting
+Using crictl ps -a to find crashed containers, reading container logs with crictl logs, checking static pod manifests in /etc/kubernetes/manifests/ — these are real skills that show you can debug at the container runtime level, not just with kubectl.
+
+9. Vagrant Multi-Machine Networking
+Understanding how Vagrant's NAT and host-only adapters work, why the default interface causes problems for Kubernetes, and how private network IPs need to be consistent across the cluster.
+
+10. Infrastructure Sizing
+Starting with 1028MB RAM and learning through failure that Kubernetes control plane needs at minimum 2GB, and why CPU starvation causes kernel-level issues like rcu_sched timeouts — this shows operational awareness.
+
 part 3 (spent 1-2 hour debugging)
 1.) Removed the unnecessary sleep 240 and redundant kubeconfig flags, replacing them with a proper readiness check.
 2.) Centralized and fixed kubeconfig setup via /vagrant/set-kubeconfig.sh with a consistent KUBECONFIG export.
