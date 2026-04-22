@@ -6,7 +6,7 @@
 # This disables swap immediately and removes it from fstab so it stays disabled after reboot
 # Reference: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo swapoff -a && sudo sed -i '/swap/d' /etc/fstab
-
+echo "======== QUALITY GATE(1) ======== --> SUCCEEDED"
 
 # NOTE: System Settings (required for Kubernetes networking)
 # Enables kernel modules and sysctl settings required for container networking:
@@ -35,6 +35,8 @@ sudo sysctl --system
 
 lsmod | grep br_netfilter
 lsmod | grep overlay
+
+echo "======== QUALITY GATE(2) ======== --> SUCCEEDED"
 
 #sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
@@ -68,6 +70,8 @@ IPADDR=192.168.33.2
 POD_CIDR=10.244.0.0/16
 NODENAME=kubemaster
 
+echo "======== QUALITY GATE(3) ======== --> SUCCEEDED"
+
 # NOTE:This flag controls the address the API server advertises to other cluster members, 
 # and is also the address used to construct the kubeadm join line — so both the cert and 
 # the join command will consistently reference 192.168.33.2. Kubernetes
@@ -77,15 +81,13 @@ if [ ! -f /etc/kubernetes/admin.conf ]; then
     --pod-network-cidr=$POD_CIDR \
     --node-name $NODENAME \
     --ignore-preflight-errors Swap &>> /tmp/initout.log
-  echo "SUCCESSFULLY ADDED INIT -- MOVING ON!"
 
   # fail fast check
   if [ $? -ne 0 ]; then
-    echo "ERROR --- KUBEADM FAILED!"
+    echo "======== QUALITY GATE(4) ERROR ======== --> KUBEADM FAILED!"
     exit 1
   fi
-else
-  echo "INIT ALREADY ADDED --- SKIPPING!"
+  echo "======== QUALITY GATE(4) ======== --> SUCCEEDED IN ADDING INIT!"
 fi
 
 # setup kubeconfig
@@ -100,16 +102,15 @@ until kubectl --kubeconfig=$KUBECONFIG get nodes &>/dev/null; do
   echo "waiting for Kubernetes API server..."
   sleep 5
 done
+echo "======== QUALITY GATE(5) ======== --> SUCCEEDED!"
 
 # Qulatity Gate(2) -- Wait for cluster to be ready
-until kubectl --kubeconfig=$KUBECONFIG get nodes --no-headers &>/dev/null |  " ready "; do
+until kubectl --kubeconfig=$KUBECONFIG get nodes --no-headers &>/dev/null | grep -i " ready"; do
   echo "waiting for Kubernetes cluster..."
   sleep 10
 done
 
-
-
-echo "API SERVER SUCCESSFULLY CONNECTED"
+echo "======== QUALITY GATE(6) --> API SERVER SUCCESSFULLY CONNECTED ========!"
 
 # NOTE: Only run kubeadm/kubectl operations AFTER API server is reachable
 # (confirmed via kubectl get nodes loop). Otherwise commands may fail.
@@ -118,6 +119,9 @@ echo "API SERVER SUCCESSFULLY CONNECTED"
 # https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/
 # 
 kubeadm token create --print-join-command > /vagrant/cltjoincommand.sh
+echo "======== QUALITY GATE(7) ======== --> SUCCEEDED!"
+
 
 # install CNI (Calico)
 KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
+echo "======== QUALITY GATE(8) ======== --> SUCCEEDED!"
