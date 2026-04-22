@@ -1,20 +1,20 @@
 #!/bin/bash
 ###KUBEMASTER###
 
-# disable swap (required by Kubernetes kubelet)
+# NOTE: disable swap (required by Kubernetes kubelet)
 # swap must be OFF because kubelet requires predictable memory management and does not support swap
 # this disables swap immediately and removes it from fstab so it stays disabled after reboot
 # ref: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 sudo swapoff -a && sudo sed -i '/swap/d' /etc/fstab
 
 
-# system Settings (required for Kubernetes networking)
+# NOTE: system Settings (required for Kubernetes networking)
 # enables kernel modules and sysctl settings required for container networking:
 # - overlay: supports OverlayFS used by container runtimes (filesystem layering for containers)
 # - br_netfilter: allows bridged IPv4/IPv6 traffic to be processed by iptables (required for Kubernetes networking)
 # - ip_forward: enables packet forwarding between network interfaces (required for pod-to-pod networking)
 
-# ref (kernel modules + Kubernetes networking requirements):
+# NOTE: ref (kernel modules + Kubernetes networking requirements):
 # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 # https://kubernetes.io/docs/concepts/cluster-administration/networking/
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
@@ -38,7 +38,7 @@ lsmod | grep overlay
 
 #sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
 
-# systemd is the init system on Ubuntu 22.04. Using cgroupfs alongside systemd
+# NOTE:systemd is the init system on Ubuntu 22.04. Using cgroupfs alongside systemd
 # creates two cgroup managers, causing instability under resource pressure.
 # SystemdCgroup = true ensures containerd and kubelet use the same cgroup driver.
 # Ref: https://kubernetes.io/docs/setup/production-environment/container-runtimes/
@@ -68,26 +68,25 @@ IPADDR=192.168.33.2
 POD_CIDR=10.244.0.0/16
 NODENAME=kubemaster
 
-# This flag controls the address the API server advertises to other cluster members, 
+# NOTE:This flag controls the address the API server advertises to other cluster members, 
 # and is also the address used to construct the kubeadm join line — so both the cert and 
 # the join command will consistently reference 192.168.33.2. Kubernetes
-kubeadm init --control-plane-endpoint=$IPADDR \
-  --apiserver-advertise-address=$IPADDR \
-  --pod-network-cidr=$POD_CIDR \
-  --node-name $NODENAME \
-  --ignore-preflight-errors Swap &>> /tmp/initout.log
+if [ ! -f /etc/kubernetes/admin.conf ]; then
+  kubeadm init --control-plane-endpoint=$IPADDR \
+    --apiserver-advertise-address=$IPADDR \
+    --pod-network-cidr=$POD_CIDR \
+    --node-name $NODENAME \
+    --ignore-preflight-errors Swap &>> /tmp/initout.log
+  echo "SUCCESS -- MOVING ON!"
 
-# fail fast check
-if [ $? -ne 0 ]; then
-  echo "kubeadm init failed"
-  exit 1
+  # fail fast check
+  if [ $? -ne 0 ]; then
+    echo "ERROR --- KUBEADM FAILED!"
+    exit 1
+  fi
+else
+  echo "SUCCESS --- MOVING ON!"
 fi
-
-# wait for admin.conf
-while [ ! -f /etc/kubernetes/admin.conf ]; do
-  echo "waiting for admin.conf..."
-  sleep 2
-done
 
 # setup kubeconfig
 sudo /bin/bash /vagrant/set-kubeconfig.sh
