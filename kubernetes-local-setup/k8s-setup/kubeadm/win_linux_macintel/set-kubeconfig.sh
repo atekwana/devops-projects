@@ -5,22 +5,21 @@ set -e
 USER=vagrant
 HOME_DIR=/home/$USER
 KUBE_CONFIG_SRC=/etc/kubernetes/admin.conf
-KUBE_CONFIG_DST=$HOME_DIR/.kube/config
 
 mkdir -p "$HOME_DIR/.kube"
+mkdir -p /root/.kube
 
 if [ -f "$KUBE_CONFIG_SRC" ]; then
 
   # set up for root user
-  mkdir -p /.kube/config
   cp -f "$KUBE_CONFIG_SRC" /root/.kube/config
   chmod 644 /root/.kube/config
   echo "KUBECONFIG INSTALLED SUCCESSFULLY FOR ROOT USER"
 
   # set up for vagrant user
-  cp -f "$KUBE_CONFIG_SRC" "$KUBE_CONFIG_DST"
+  cp -f "$KUBE_CONFIG_SRC" "$HOME_DIR/.kube/config"
   chown $USER:$USER "$HOME_DIR/.kube"
-  chmod 644 "$KUBE_CONFIG_DST"
+  chmod 644 "$HOME_DIR/.kube/config"
   echo "KUBECONFIG INSTALLED SUCCESSFULLY FOR VAGRANT USER"
 
 else

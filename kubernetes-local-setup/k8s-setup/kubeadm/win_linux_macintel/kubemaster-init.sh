@@ -77,7 +77,7 @@ if [ ! -f /etc/kubernetes/admin.conf ]; then
     --pod-network-cidr=$POD_CIDR \
     --node-name $NODENAME \
     --ignore-preflight-errors Swap &>> /tmp/initout.log
-  echo "SUCCESS -- MOVING ON!"
+  echo "SUCCESSFULLY ADDED INIT -- MOVING ON!"
 
   # fail fast check
   if [ $? -ne 0 ]; then
@@ -85,7 +85,7 @@ if [ ! -f /etc/kubernetes/admin.conf ]; then
     exit 1
   fi
 else
-  echo "SUCCESS --- MOVING ON!"
+  echo "INIT ALREADY ADDED --- SKIPPING!"
 fi
 
 # setup kubeconfig
@@ -95,12 +95,21 @@ sudo /bin/bash /vagrant/set-kubeconfig.sh
 # ensure kubectl always uses correct cluster context
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-# wait for Kubernetes API + cluster readiness (node registration)
-until kubectl --kubeconfig=/etc/kubernetes/admin.conf get nodes &>/dev/null; do
+# Quality Gate(1) -- for Kubernetes API + cluster readiness (node registration)
+until kubectl --kubeconfig=$KUBECONFIG get nodes &>/dev/null; do
   echo "waiting for Kubernetes API server..."
+  sleep 5
+done
+
+# Qulatity Gate(2) -- Wait for cluster to be ready
+until kubectl --kubeconfig=$KUBECONFIG get nodes --no-headers &>/dev/null |  " ready "; do
+  echo "waiting for Kubernetes cluster..."
   sleep 10
 done
 
+
+
+echo "API SERVER SUCCESSFULLY CONNECTED"
 
 # NOTE: Only run kubeadm/kubectl operations AFTER API server is reachable
 # (confirmed via kubectl get nodes loop). Otherwise commands may fail.

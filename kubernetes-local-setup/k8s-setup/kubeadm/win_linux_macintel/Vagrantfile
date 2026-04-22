@@ -3,7 +3,7 @@ Vagrant.configure("2") do |config|
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
 
-  config.vm.define "kubemaster" do |kubemaster|
+  config.vm.define "kubemaster", primary: true do |kubemaster|
     kubemaster.vm.box = "ubuntu/jammy64"
     kubemaster.vm.network "private_network", ip: "192.168.33.2"
     kubemaster.vm.hostname = "kubemaster"
