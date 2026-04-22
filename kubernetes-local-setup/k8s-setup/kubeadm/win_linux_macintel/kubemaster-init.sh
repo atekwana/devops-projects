@@ -89,6 +89,7 @@ else
 fi
 
 # setup kubeconfig
+sed -i 's/\r//g' /vagrant/set-kubeconfig.sh
 sudo /bin/bash /vagrant/set-kubeconfig.sh
 
 # ensure kubectl always uses correct cluster context
