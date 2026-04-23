@@ -105,11 +105,10 @@ done
 echo "======== QUALITY GATE(5) ======== --> SUCCEEDED!"
 
 # Qulatity Gate(2) -- Wait for cluster to be ready
-until kubectl --kubeconfig=$KUBECONFIG get nodes --no-headers &>/dev/null | grep -i " ready"; do
+until kubectl --kubeconfig=$KUBECONFIG get nodes --no-headers 2>/dev/null | grep -i " ready"; do
   echo "waiting for Kubernetes cluster..."
   sleep 10
 done
-
 echo "======== QUALITY GATE(6) --> API SERVER SUCCESSFULLY CONNECTED ========!"
 
 # NOTE: Only run kubeadm/kubectl operations AFTER API server is reachable
