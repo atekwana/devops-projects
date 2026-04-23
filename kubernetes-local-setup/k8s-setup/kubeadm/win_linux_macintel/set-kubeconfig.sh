@@ -11,6 +11,8 @@ mkdir -p /root/.kube
 
 if [ -f "$KUBE_CONFIG_SRC" ]; then
 
+  chmod 644 /etc/kubernetes/admin.conf
+
   # set up for root user
   cp -f "$KUBE_CONFIG_SRC" /root/.kube/config
   chmod 644 /root/.kube/config
