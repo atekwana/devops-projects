@@ -21,7 +21,7 @@ then
   --nodes-min 1 \
   --nodes-max 4 \
   --node-type t3.micro \
-  --node-volume-size 8 \
+  --node-volume-size 25 \
   --ssh-access \
   --ssh-public-key $KEY_NAME \
   --managed
