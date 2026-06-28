@@ -1,0 +1,24 @@
+# ============================================================
+# Defining a Service
+# ============================================================
+# A Service is an object (the same way that a Pod or a ConfigMap is an object).
+# You can create, view or modify Service definitions using the Kubernetes API.
+# Usually you use a tool such as kubectl to make those API calls for you.
+
+# For example, suppose you have a set of Pods that each listen on TCP port 9376
+# and are labelled as app.kubernetes.io/name=MyApp.
+# You can define a Service to publish that TCP listener:
+# ============================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vprodb
+spec:
+  selector:
+    app.kubernetes.io/name: vprodb
+  ports:
+    - protocol: TCP # external
+      port: 3306
+      targetPort: vprodb-port
+  type: ClusterIP # for internal use only

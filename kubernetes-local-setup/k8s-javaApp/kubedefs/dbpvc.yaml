@@ -1,0 +1,17 @@
+# The next step is to create a PersistentVolumeClaim.
+# Pods use PersistentVolumeClaims to request physical storage.
+# Create a PersistentVolumeClaim that requests a volume of at least
+# three gibibytes that can provide read-write access for at most one Node at a time.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pv-claim
+  labels:
+    app: vprodb
+spec:
+  storageClassName: default
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi

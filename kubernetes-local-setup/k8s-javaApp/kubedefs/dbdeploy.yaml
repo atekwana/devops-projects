@@ -1,0 +1,56 @@
+# ============================================================
+# Creating a Deployment (MySQL)
+# ============================================================
+#
+# - Rollout a ReplicaSet: creates Pods in the background
+# - Update Pod state: gradually scales new ReplicaSet up,
+#   old one down at a controlled rate
+# - Rollback: revert to an earlier revision if unstable
+# - Scale up: handle increased load
+# - Pause/resume: apply multiple fixes before rolling out
+# - Monitor status: detect stuck rollouts
+# - Clean up: remove older ReplicaSets no longer needed
+# ============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vprodb
+  labels:
+    app: vprodb
+spec:
+  replicas: 1 # cannot have more than one for databases. use statefulset.
+  selector:
+    matchLabels:
+      app: vprodb
+  template:
+    metadata:
+      labels:
+        app: vprodb
+    spec:
+      containers:
+        - name: vprodb
+          image: vprocontainers/vprofiledb
+          volumeMounts:
+            - mountPath: /var/lib/mysql # must be completely empty
+              name: vpro-db-data
+          ports:
+            - name: vprodb-port
+              containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: db-pass
+      volumes:
+        - name: vpro-db-data
+          persistentVolumeClaim:
+            claimName: db-pv-claim
+      initContainers:
+        - name: busybox
+          image: busybox:latest
+          command: ["rm", "-rf", "/var/lib/mysql/lost+found"] # replace the entrypoint entirely
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: vpro-db-data
