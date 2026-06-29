@@ -44,6 +44,7 @@ systemctl enable containerd >/dev/null 2>&1
 # packages.cloud.google.com is deprecated — using new pkgs.k8s.io repo (MAKE SURE TO UPDATE)
 echo "[TASK 6] Add apt repo for kubernetes"
 mkdir -p /etc/apt/keyrings
+rm -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --batch --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
 apt update -qq >/dev/null 2>&1
