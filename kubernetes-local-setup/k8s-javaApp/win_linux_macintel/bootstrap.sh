@@ -53,16 +53,13 @@ apt update -qq >/dev/null 2>&1
 echo "[TASK 7] Install Kubernetes components (kubeadm, kubelet and kubectl)"
 apt install -qq -y kubeadm=1.30.0-1.1 kubelet=1.30.0-1.1 kubectl=1.30.0-1.1 >/dev/null 2>&1
 
-# Allows worker nodes to scp the join command from the master via password
+# use SSH key-based auth between kmaster and workers instead of password/root login
 echo "[TASK 8] Enable ssh password authentication"
-sed -i 's/^PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
 echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
 systemctl reload sshd
-
-# Password used by worker nodes to scp /joincluster.sh from master
 echo "[TASK 9] Set root password"
 echo -e "kubeadmin\nkubeadmin" | passwd root >/dev/null 2>&1
-echo "export TERM=xterm" >> /etc/bash.bashrc
 
 # Allows nodes to resolve each other by hostname
 cat >>/etc/hosts<<EOF
