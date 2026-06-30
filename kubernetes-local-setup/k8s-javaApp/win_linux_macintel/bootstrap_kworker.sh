@@ -8,3 +8,4 @@ cp /vagrant/joincluster.sh /joincluster.sh
 
 echo "[TASK 2] Execute join command"
 bash /joincluster.sh
+
