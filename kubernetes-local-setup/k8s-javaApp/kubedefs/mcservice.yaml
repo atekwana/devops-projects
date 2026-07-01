@@ -16,7 +16,7 @@ metadata:
   name: vprocache01
 spec:
   selector:
-    app.kubernetes.io/name: vpromc
+    app: vpromc
   ports:
     - protocol: TCP # external
       port: 11211

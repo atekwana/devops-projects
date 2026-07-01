@@ -16,7 +16,7 @@ metadata:
   name: vprodb
 spec:
   selector:
-    app.kubernetes.io/name: vprodb
+    app: vprodb
   ports:
     - protocol: TCP # external
       port: 3306
