@@ -24,6 +24,10 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - kacetech.dev
+      secretName: kacetech-tls
   rules:
     - host: kacetech.dev
       http:
